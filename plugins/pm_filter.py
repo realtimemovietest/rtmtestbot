@@ -652,18 +652,15 @@ async def auto_filter(client, msg, spoll=False):
                 if settings["spell_check"]:
                     return await advantage_spell_chok(msg)
                 else:
+                    btn = [
+                            [
+                                InlineKeyboardButton("🔍Check Your Spelling", url=f"https://google.com/search?q={quote(search)} movie")
+                            ],[
+                                InlineKeyboardButton("🗓 Check Release Data", url=f"https://google.com/search?q={quote(search)} release date")
+                            ]
+                        ]
                     tt = await msg.reply("I couldn't find a movie in my database. Please check the spelling or the release date and try again.",
-                                                reply_markup=InlineKeyboardMarkup(
-                                                        [
-                                                            [
-                                                                InlineKeyboardButton("🔍Check Your Spelling", url=f'https://google.com/search?q={quote(search)} movie')
-                                                            ],[
-                                                                InlineKeyboardButton('🗓 Check Release Data', url=f'https://google.com/search?q={quote(search)} release date')
-                                                            ]
-                                                        ]
-                                                    )
-                        )
-                    
+                                        reply_markup=InlineKeyboardMarkup(btn))
                     await asyncio.sleep(180)
                     await tt.delete()
                     return
