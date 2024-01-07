@@ -14,7 +14,7 @@ def is_enabled(value, default):
 SESSION = environ.get('SESSION', 'Media_search')
 API_ID = int(environ.get('API_ID', '13316542'))
 API_HASH = environ.get('API_HASH', '7ccde6211ae5c1d47c9e8ccdc7fcb608')
-BOT_TOKEN = environ.get('BOT_TOKEN', "5757523889:AAGvTey04LAg40irTtd5ckYuRi3l5evFV1Q")
+BOT_TOKEN = environ.get('BOT_TOKEN', "6900593295:AAGh7m8dtsW3hBFMkH4FiF0CxXyzx8aura8")
 
 #Port
 PORT = environ.get("PORT", "8080")
@@ -35,9 +35,9 @@ AUTH_CHANNEL = int(auth_channel) if auth_channel and id_pattern.search(auth_chan
 AUTH_GROUPS = [int(ch) for ch in auth_grp.split()] if auth_grp else None
 
 # MongoDB information
-DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://rtmfilehub:rtmfilehub@rtmfilehub.9inomvm.mongodb.net/?retryWrites=true&w=majority")
-DATABASE_NAME = environ.get('DATABASE_NAME', "RtmFileHub")
-COLLECTION_NAME = environ.get('COLLECTION_NAME', 'RtmFileHub')
+DATABASE_URI = environ.get('DATABASE_URI', "mongodb+srv://realtimemovie40:xyz123654789@rtmfilehubtest.i20x1dv.mongodb.net/?retryWrites=true&w=majority")
+DATABASE_NAME = environ.get('DATABASE_NAME', "RtmFileHubtest")
+COLLECTION_NAME = environ.get('COLLECTION_NAME', 'RtmFileHubtest')
 
 # Others
 LOG_CHANNEL = int(environ.get('LOG_CHANNEL', '-1002103774206'))
