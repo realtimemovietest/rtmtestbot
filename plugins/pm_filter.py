@@ -657,10 +657,13 @@ async def auto_filter(client, msg, spoll=False):
                                             [
                                                 [
                                                     InlineKeyboardButton("🔍Check Your Spelling", url=f"https://google.com/search?q={quote(search)} movie")
-                                                ],[
+                                                ],
+                                                [
                                                     InlineKeyboardButton("🗓 Check Release Data", url=f"https://google.com/search?q={quote(search)} release date")
                                                 ]
-                                            ]))
+                                            ]
+                                        )
+                                    )
                     await asyncio.sleep(180)
                     await tt.delete()
                     return
