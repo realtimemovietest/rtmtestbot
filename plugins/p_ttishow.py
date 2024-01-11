@@ -82,15 +82,11 @@ async def next_page(bot, query):
         return
     settings = await get_settings(query.message.chat.id)
     if settings['button']:
-        btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                ),
-            ]
+        btn = []
+        txatr = ''.join([
+            f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\"><strong>{get_size(file.file_size)}</strong> {file.file_name}</a>"
             for file in files
-        ]
+        ])
     else:
         btn = [
             [
@@ -660,15 +656,11 @@ async def auto_filter(client, msg, spoll=False):
         search, files, offset, total_results = spoll
     pre = 'filep' if settings['file_secure'] else 'file'
     if settings["button"]:
-        btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}") 
-                ),
-            ]
+        btn = []
+        txatr = ''.join([
+            f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\"><strong>{get_size(file.file_size)}</strong> {file.file_name}</a>\n"
             for file in files
-        ]
+        ])
     else:
         btn = [
             [
@@ -737,7 +729,7 @@ async def auto_filter(client, msg, spoll=False):
             **locals()
         )
     else:
-        cap = f"Rᴇǫᴜᴇsᴛᴇᴅ ᴍᴏᴠɪᴇ ɴᴀᴍᴇ : <code>{search}</code>\n\n\n😌 If The Movie You Are Looking for Is Not Available Then Join Our Request Group @Realtimemovierequest & Request For Movie/Series. 😌 \n\nᴇxᴀᴍᴘʟᴇ : \n\Enter Your Movie/Series Name(Year) & Language."
+        cap = f"Here is what i found for your query {search}\n\n"
     if imdb and imdb.get('poster'):
         try:
             hehe =  await message.reply_photo(photo=imdb.get('poster'), caption=cap[:1024],
@@ -760,7 +752,7 @@ async def auto_filter(client, msg, spoll=False):
                 await asyncio.sleep(SELF_DELETE_SECONDS)
                 await fek.delete()
     else:
-        fuk = await message.reply_text(cap, reply_markup=InlineKeyboardMarkup(btn))
+        fuk = await message.reply_text(cap+txatr, reply_markup=InlineKeyboardMarkup(btn))
         if SELF_DELETE:
             await asyncio.sleep(SELF_DELETE_SECONDS)
             await fuk.delete()
