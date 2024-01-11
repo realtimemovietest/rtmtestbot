@@ -9,6 +9,7 @@ import pyrogram
 from database.connections_mdb import active_connection, all_connections, delete_connection, if_active, make_active, \
     make_inactive
 from info import *
+from urllib.parse import quote
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 from pyrogram import Client, filters, enums
 from pyrogram.errors import FloodWait, UserIsBlocked, MessageNotModified, PeerIdInvalid
@@ -55,7 +56,7 @@ async def fil_mod(client, message):
 async def give_filter(client, message):
     k = await manual_filters(client, message)
     if k == False:
-        await auto_filter(client, message)
+        await auto_filter(client, message, k)
 
 
 @Client.on_callback_query(filters.regex(r"^next"))
@@ -82,15 +83,23 @@ async def next_page(bot, query):
         return
     settings = await get_settings(query.message.chat.id)
     if settings['button']:
-        btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                ),
+        if imdb:
+            btn = [
+                [
+                    InlineKeyboardButton(
+                        text=f"[{get_size(file.file_size)}] {file.file_name}", 
+                        url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
+                    ),
+                ]
+                for file in files
             ]
-            for file in files
-        ]
+        else:
+            btn = []
+            txatr = ''.join([
+                f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\"><strong>{get_size(file.file_size)}</strong> {file.file_name}</a>"
+                for file in files
+            ])
+
     else:
         btn = [
             [
@@ -164,8 +173,19 @@ async def advantage_spoll_choker(bot, query):
             k = (movie, files, offset, total_results)
             await auto_filter(bot, query, k)
         else:
-            k = await query.message.edit('This Movie is not Yet Released or Added to Database💌\nJoin Request Group and Leave a Message\n\n©️Request Group : @RealTimeMovieRequest')
-            await asyncio.sleep(30)
+            k = await query.message.edit("I couldn't find a movie in my database. Please check the spelling or the release date and try again.",
+                        reply_markup=InlineKeyboardMarkup(
+                                [
+                                    [
+                                        InlineKeyboardButton("🔍Check Your Spelling", url=f"https://google.com/search?q={quote(search)}%20movie")
+                                    ],
+                                    [
+                                        InlineKeyboardButton("🗓 Check Release Data", url=f"https://google.com/search?q={quote(search)}%20release%20date")
+                                    ]
+                                ]
+                            )
+                        )       
+            await asyncio.sleep(180)
             await k.delete()
 
 @Client.on_callback_query()
@@ -651,6 +671,20 @@ async def auto_filter(client, msg, spoll=False):
                 if settings["spell_check"]:
                     return await advantage_spell_chok(msg)
                 else:
+                    tt = await msg.reply("I couldn't find a movie in my database. Please check the spelling or the release date and try again.",
+                                        reply_markup=InlineKeyboardMarkup(
+                                            [
+                                                [
+                                                    InlineKeyboardButton("🔍Check Your Spelling", url=f"https://google.com/search?q={quote(search)}%20movie")
+                                                ],
+                                                [
+                                                    InlineKeyboardButton("🗓 Check Release Data", url=f"https://google.com/search?q={quote(search)}%20release%20date")
+                                                ]
+                                            ]
+                                        )
+                                    )
+                    await asyncio.sleep(180)
+                    await tt.delete()
                     return
         else:
             return
@@ -660,15 +694,22 @@ async def auto_filter(client, msg, spoll=False):
         search, files, offset, total_results = spoll
     pre = 'filep' if settings['file_secure'] else 'file'
     if settings["button"]:
-        btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}") 
-                ),
+        if imdb:
+            btn = [
+                [
+                    InlineKeyboardButton(
+                        text=f"[{get_size(file.file_size)}] {file.file_name}", 
+                        url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
+                    ),
+                ]
+                for file in files
             ]
-            for file in files
-        ]
+        else:
+            btn = []
+            txatr = ''.join([
+                f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\"><strong>{get_size(file.file_size)}</strong> {file.file_name}</a>"
+                for file in files
+            ])
     else:
         btn = [
             [
@@ -737,7 +778,7 @@ async def auto_filter(client, msg, spoll=False):
             **locals()
         )
     else:
-        cap = f"Rᴇǫᴜᴇsᴛᴇᴅ ᴍᴏᴠɪᴇ ɴᴀᴍᴇ : <code>{search}</code>\n\n\n😌 If The Movie You Are Looking for Is Not Available Then Join Our Request Group @Realtimemovierequest & Request For Movie/Series. 😌 \n\nᴇxᴀᴍᴘʟᴇ : \n\Enter Your Movie/Series Name(Year) & Language."
+        cap = f"Here is what i found for your query {search}\n\n"
     if imdb and imdb.get('poster'):
         try:
             hehe =  await message.reply_photo(photo=imdb.get('poster'), caption=cap[:1024],
@@ -760,12 +801,13 @@ async def auto_filter(client, msg, spoll=False):
                 await asyncio.sleep(SELF_DELETE_SECONDS)
                 await fek.delete()
     else:
-        fuk = await message.reply_text(cap, reply_markup=InlineKeyboardMarkup(btn))
+        fuk = await message.reply_text(cap+txatr, reply_markup=InlineKeyboardMarkup(btn))
         if SELF_DELETE:
             await asyncio.sleep(SELF_DELETE_SECONDS)
             await fuk.delete()
 
 async def advantage_spell_chok(msg):
+    search = msg
     query = re.sub(
         r"\b(pl(i|e)*?(s|z+|ease|se|ese|(e+)s(e)?)|((send|snd|giv(e)?|gib)(\sme)?)|movie(s)?|new|latest|br((o|u)h?)*|^h(e|a)?(l)*(o)*|mal(ayalam)?|t(h)?amil|file|that|find|und(o)*|kit(t(i|y)?)?o(w)?|thar(u)?(o)*w?|kittum(o)*|aya(k)*(um(o)*)?|full\smovie|any(one)|with\ssubtitle(s)?)",
         "", msg.text, flags=re.IGNORECASE)  # plis contribute some common words
@@ -774,8 +816,8 @@ async def advantage_spell_chok(msg):
     g_s += await search_gagala(msg.text)
     gs_parsed = []
     if not g_s:
-        k = await msg.reply("I couldn't find any movie in that name.")
-        await asyncio.sleep(8)
+        k = await msg.reply("I couldn't find a movie in my database. Please check the spelling or the release date and try again.",)
+        await asyncio.sleep(180)
         await k.delete()
         return
     regex = re.compile(r".*(imdb|wikipedia).*", re.IGNORECASE)  # look for imdb / wiki results
@@ -803,8 +845,8 @@ async def advantage_spell_chok(msg):
     movielist += [(re.sub(r'(\-|\(|\)|_)', '', i, flags=re.IGNORECASE)).strip() for i in gs_parsed]
     movielist = list(dict.fromkeys(movielist))  # removing duplicates
     if not movielist:
-        k = await msg.reply("I couldn't find anything related to that. Check your spelling")
-        await asyncio.sleep(8)
+        k = await msg.reply("I couldn't find a movie in my database. Please check the spelling or the release date and try again.",)
+        await asyncio.sleep(180)
         await k.delete()
         return
     SPELL_CHECK[msg.id] = movielist
@@ -815,9 +857,11 @@ async def advantage_spell_chok(msg):
         )
     ] for k, movie in enumerate(movielist)]
     btn.append([InlineKeyboardButton(text="Close", callback_data=f'spolling#{user}#close_spellcheck')])
-    tt = await msg.reply("I couldn't find anything related to that\nDid you mean any one of these?",
-                    reply_markup=InlineKeyboardMarkup(btn))
-    await asyncio.sleep(15)
+
+    tt = await msg.reply(
+    "I couldn't find a movie in my database. Please check the spelling or the release date and try again.",
+    reply_markup=InlineKeyboardMarkup(btn))
+    await asyncio.sleep(180)
     await tt.delete()
 
 
