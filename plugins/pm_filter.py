@@ -84,14 +84,11 @@ async def next_page(bot, query):
     settings = await get_settings(query.message.chat.id)
     if settings['button']:
         btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                ),
+                [
+                    f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\">{get_size(file.file_size)} {file.file_name}</a>"
+                    for file in files
+                ]
             ]
-            for file in files
-        ]
     else:
         btn = [
             [
@@ -687,14 +684,11 @@ async def auto_filter(client, msg, spoll=False):
     pre = 'filep' if settings['file_secure'] else 'file'
     if settings["button"]:
         btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}") 
-                ),
+                [
+                    f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\">{get_size(file.file_size)} {file.file_name}</a>"
+                    for file in files
+                ]
             ]
-            for file in files
-        ]
     else:
         btn = [
             [
