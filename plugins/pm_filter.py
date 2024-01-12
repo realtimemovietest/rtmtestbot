@@ -54,7 +54,7 @@ async def fil_mod(client, message):
 
 @Client.on_message((filters.group | filters.private) & filters.text & filters.incoming)
 async def give_filter(client, message):
-    k = await manual_filters(client, message, k)
+    k = await manual_filters(client, message, False)
     if k == False:
         await auto_filter(client, message, k)
 
