@@ -83,43 +83,16 @@ async def next_page(bot, query):
         return
     settings = await get_settings(query.message.chat.id)
     if settings['button']:
-        if imdb:
-            btn = [
-                [
-                    InlineKeyboardButton(
-                        text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                        url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                    ),
-                ]
-                for file in files
-            ]
-        else:
-            btn = []
-            txatr = ''.join([
-                f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\"><strong>{get_size(file.file_size)}</strong> {file.file_name}</a>"
-                for file in files
-            ])
-
-    else:
-        btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                ),
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                ),
-            ]
+        txatr = ''.join([
+            f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\"><strong>{get_size(file.file_size)}</strong> {file.file_name}</a>"
             for file in files
-        ]
+        ])
 
-    btn.insert(0,
+    btn = [
         [
             InlineKeyboardButton(text="📥 How To Download 📥", url='https://t.me/DulinkDroplink')
         ]
-    )
+    ]
 
     if 0 < offset <= 10:
         off_set = 0
@@ -694,42 +667,16 @@ async def auto_filter(client, msg, spoll=False):
         search, files, offset, total_results = spoll
     pre = 'filep' if settings['file_secure'] else 'file'
     if settings["button"]:
-        if imdb:
-            btn = [
-                [
-                    InlineKeyboardButton(
-                        text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                        url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                    ),
-                ]
-                for file in files
-            ]
-        else:
-            btn = []
-            txatr = ''.join([
+        txatr = ''.join([
                 f"<a href=\"{await get_shortlink('https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}')}\"><strong>{get_size(file.file_size)}</strong> {file.file_name}</a>"
                 for file in files
             ])
-    else:
-        btn = [
-            [
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                ),
-                InlineKeyboardButton(
-                    text=f"[{get_size(file.file_size)}] {file.file_name}", 
-                    url=await get_shortlink(f"https://telegram.dog/{temp.U_NAME}?start=files_{file.file_id}")
-                ),
-            ]
-            for file in files
-        ]
 
-    btn.insert(0,
+    btn = [
         [
             InlineKeyboardButton(text="📥 How To Download 📥", url='https://t.me/DulinkDroplink')
         ]
-    )
+    ]
 
     if offset != "":
         key = f"{message.chat.id}-{message.id}"
@@ -781,7 +728,7 @@ async def auto_filter(client, msg, spoll=False):
         cap = f"Here is what i found for your query {search}\n\n"
     if imdb and imdb.get('poster'):
         try:
-            hehe =  await message.reply_photo(photo=imdb.get('poster'), caption=cap[:1024],
+            hehe =  await message.reply_photo(photo=imdb.get('poster'), caption=(cap + txatr)[:1024],
                                       reply_markup=InlineKeyboardMarkup(btn))
             if SELF_DELETE:
                 await asyncio.sleep(SELF_DELETE_SECONDS)
@@ -790,13 +737,13 @@ async def auto_filter(client, msg, spoll=False):
         except (MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty):
             pic = imdb.get('poster')
             poster = pic.replace('.jpg', "._V1_UX360.jpg")
-            hmm = await message.reply_photo(photo=poster, caption=cap[:1024], reply_markup=InlineKeyboardMarkup(btn))
+            hmm = await message.reply_photo(photo=poster, caption=(cap + txatr)[:1024], reply_markup=InlineKeyboardMarkup(btn))
             if SELF_DELETE:
                 await asyncio.sleep(SELF_DELETE_SECONDS)
                 await hmm.delete()
         except Exception as e:
             logger.exception(e)
-            fek = await message.reply_text(cap, reply_markup=InlineKeyboardMarkup(btn))
+            fek = await message.reply_text(cap+txatr, reply_markup=InlineKeyboardMarkup(btn))
             if SELF_DELETE:
                 await asyncio.sleep(SELF_DELETE_SECONDS)
                 await fek.delete()
